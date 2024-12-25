@@ -1,4 +1,43 @@
-name: Docker Build and Test
+# name: Docker Build and Test
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       # Checkout the code
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+
+#       # Set up Docker
+#       - name: Set up Docker
+#         uses: docker/setup-buildx-action@v2
+
+#       # Build and test the Docker image
+#       - name: Build Docker image
+#         run: |
+#           docker build -t my-app .
+
+#       # Run the container to test
+#       - name: Run Container
+#         run: |
+#           docker run -d -p 8080:8080 --name test-container my-app
+#           sleep 10 # Allow time for the container to start
+#           curl -f http://localhost:8080 || exit 1
+
+#       # Cleanup
+#       - name: Stop and remove container
+#         run: |
+#           docker stop test-container
+#           docker rm test-container
+
+
+
+name: Test Selenium in Docker
 
 on:
   push:
@@ -6,7 +45,7 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       # Checkout the code
@@ -17,20 +56,16 @@ jobs:
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
 
-      # Build and test the Docker image
+      # Build the Docker image
       - name: Build Docker image
-        run: |
-          docker build -t my-app .
+        run: docker build -t selenium-test .
 
-      # Run the container to test
-      - name: Run Container
+      # Run the container and test
+      - name: Run Docker container
         run: |
-          docker run -d -p 8080:8080 --name test-container my-app
-          sleep 10 # Allow time for the container to start
-          curl -f http://localhost:8080 || exit 1
+          docker run --rm selenium-test
 
-      # Cleanup
-      - name: Stop and remove container
-        run: |
-          docker stop test-container
-          docker rm test-container
+      # Check logs in case of failure
+      - name: Check Docker logs
+        if: failure()
+        run: docker logs selenium-test
